@@ -76,7 +76,6 @@ int main(){
 	ifstream in;
 	vector<trip> v;
 	vector<vector<trip>> vaction;
-	vector<vector<vector<trip>>> vall;
 
 	//--------------------------------------Acquisizione del dataset-------------------------------------
 	if(!singolo){
@@ -95,21 +94,24 @@ int main(){
 					stringstream ssj;
 					ssj << setfill('0') << setw(2) << j+1;
 
+					//Creo nome file da aprire
 					nome_file += "dataset/";
 					nome_file += "a" + ssi.str();
 					nome_file += "_s" + ssk.str();
 					nome_file += "_e" + ssj.str();
 					nome_file += "_skeleton3d.txt";
-
 					cout << "Aperto file: " << nome_file << endl;
+
+					//Apro il file
 					in.open(nome_file);
 					if(!in.is_open())
 						cout << "Errore apertura file!" << endl;
 
+					//Ottengo tutto il contenuto del file -> vettore di triplette (x, y, z)
 					getdata(in, v, vaction);
 
+					//Ogni vaction contiene tanti elementi quanti frame memorizzati (ogni frame 20 triplette)
 					cout << "Sono stati memorizzati " << vaction.size() << " frame" << endl;
-					//vall.push_back(vaction);
 					nome_file.clear();
 					ssj.str().clear();
 				}
@@ -117,9 +119,8 @@ int main(){
 			}	
 			ssi.clear();
 		}
-		cout << "Sono state memorizzate " << vall.size() << " azioni" << endl;
 	}
-	else{
+	else{// Versione per caricare un singolo file del dataset
 		stringstream ssi;
 		ssi << setfill('0') << setw(2) << num_a;
 		stringstream ssk;
@@ -127,66 +128,65 @@ int main(){
 		stringstream ssj;
 		ssj << setfill('0') << setw(2) << num_e;
 
+		//Creo nome del file da aprire
 		nome_file += "dataset/";
 		nome_file += "a" + ssi.str();
 		nome_file += "_s" + ssk.str();
 		nome_file += "_e" + ssj.str();
 		nome_file += "_skeleton3d.txt";
-
 		cout << "Aperto singolo file: " << nome_file << endl;
+
+		//Apro il file
 		in.open(nome_file);
 		if(!in.is_open())
 			cout << "Errore apertura file!" << endl;
 
+		//Ottengo tutto il contenuto del file -> vettore di triplette (x, y, z)
 		getdata(in, v, vaction);
-		//vall.push_back(vaction);
-		
+
 		cout << "Sono stati memorizzati " << vaction.size() << " frame" << endl;
 	}
 
 	//--------------------------------Creazione del Feature Vector-------------------------------
 	vector<double> feat;
 	vector<vector<double>> vfeatures;
-	vector<vector<vector<double>>> vallfeat;
-
-	//cout << getxyz(vframe, 1, head).x << endl;
 
 	cout << "Calcolo le features..." << endl;
-	//for(int j=0;j<vall.size();++j){
-		for(int i=0; i<vaction.size(); ++i){ //per ogni frame calcolo la feature
-			double dist;
+	for(int i=0; i<vaction.size(); ++i){ //per ogni frame calcolo la feature
+		double dist;
 
-			//Distanza euclidea mani
-			dist = sqrt(pow((getxyz(vaction, i, right_hand).x-getxyz(vaction, i, left_hand).x), 2) +
-				pow((getxyz(vaction, i, right_hand).y-getxyz(vaction, i, left_hand).y), 2) +
-				pow((getxyz(vaction, i, right_hand).z-getxyz(vaction, i, left_hand).z), 2));
+		//Distanza euclidea mani
+		dist = sqrt(pow((getxyz(vaction, i, right_hand).x-getxyz(vaction, i, left_hand).x), 2) +
+			pow((getxyz(vaction, i, right_hand).y-getxyz(vaction, i, left_hand).y), 2) +
+			pow((getxyz(vaction, i, right_hand).z-getxyz(vaction, i, left_hand).z), 2));
 
-			feat.push_back(dist);
+		feat.push_back(dist);
 
-			//Distanza mano destra - testa
-			dist = sqrt(pow((getxyz(vaction, i, right_hand).x-getxyz(vaction, i, head).x), 2) +
-				pow((getxyz(vaction, i, right_hand).y-getxyz(vaction, i, head).y), 2) +
-				pow((getxyz(vaction, i, right_hand).z-getxyz(vaction, i, head).z), 2));
+		//Distanza mano destra - testa
+		dist = sqrt(pow((getxyz(vaction, i, right_hand).x-getxyz(vaction, i, head).x), 2) +
+			pow((getxyz(vaction, i, right_hand).y-getxyz(vaction, i, head).y), 2) +
+			pow((getxyz(vaction, i, right_hand).z-getxyz(vaction, i, head).z), 2));
 
-			feat.push_back(dist); 
+		feat.push_back(dist); 
 
-			//Distanza mano sinistra - testa
-			dist = sqrt(pow((getxyz(vaction, i, left_hand).x-getxyz(vaction, i, head).x), 2) +
-				pow((getxyz(vaction, i, left_hand).y-getxyz(vaction, i, head).y), 2) +
-				pow((getxyz(vaction, i, left_hand).z-getxyz(vaction, i, head).z), 2));
+		//Distanza mano sinistra - testa
+		dist = sqrt(pow((getxyz(vaction, i, left_hand).x-getxyz(vaction, i, head).x), 2) +
+			pow((getxyz(vaction, i, left_hand).y-getxyz(vaction, i, head).y), 2) +
+			pow((getxyz(vaction, i, left_hand).z-getxyz(vaction, i, head).z), 2));
 
-			feat.push_back(dist); 
+		feat.push_back(dist); 
 
-			vfeatures.push_back(feat);
-			feat.clear();
-		}
-	//}
+		//Memorizzo tutte le features calcolate
+		vfeatures.push_back(feat);
+
+		feat.clear();
+	}
 
 	cout << "Il feature vector ha " << vfeatures.size() << " vettori di features, con " << vfeatures[0].size() << " features" << endl;
 
 
 
-	//--------------------------------------------HMM-------------------------------------------------
+	//--------------------------------------------TRAINING HMM-----------------------------------------
 	int num_stati = 8;
 	int dim_fv = vfeatures[0].size(); //dimensione del singolo feature vector (tutti uguali)
 	int num_gaus = 1;
@@ -209,9 +209,14 @@ int main(){
 	double plogprobinit, plogprobfinal;
 	phmm->BaumWelch(ivf_init, ivf_final, &pniter, &plogprobinit, &plogprobfinal);
 
-	//LogLikelihood
-	Mat_<double> A;
+	//Ottengo valori HMM addestrato
+	Mat_<double> A; //Matrice transizioni
 	A = phmm->m_A;
+
+	//--------------------------------------------TESTING HMM---------------------------------------
+	
+	//LogLikelihood: ottengo score da HMM date le osservazioni
+	
 	cout << "logLikelihood ottenuta: " << phmm->LogLikelihood(ivf_init, ivf_final, &A) << endl;
 
 	//Salvo HMM
