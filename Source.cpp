@@ -18,17 +18,17 @@ struct trip{
 	double  z;
 };
 
+//Numero azione
+#define num_a 3
 //Numero persona
 #define num_s 1
-//Numero azione
-#define num_a 1
 //Numero istanza
 #define num_e 1
 
-//Numero persone da caricare train (MAX 12)
-#define num_s_train 1
 //Numero azioni da caricare train (MAX 3)
 #define num_a_train 1
+//Numero persone da caricare train (MAX 12)
+#define num_s_train 1
 //Numero istanze da caricare train (MAX 3)
 #define num_e_train 1
 
@@ -45,6 +45,7 @@ trip getxyz(vector<vector<trip>> vframe, int frame, int part ){
 	return t;
 }
 
+//Funzione che dato file, estrae (x,y,z) e le inserisce tutte in un vettore dell'azione
 void getdata(ifstream &in, vector<trip>& v, vector<vector<trip>>& vaction ){
 	string line;
 
@@ -71,7 +72,7 @@ void getdata(ifstream &in, vector<trip>& v, vector<vector<trip>>& vaction ){
 
 int main(){
 
-	bool singolo = false;
+	bool singolo = true;
 	string nome_file;
 	ifstream in;
 	vector<trip> v;
@@ -222,8 +223,17 @@ int main(){
 	//LogLikelihood: ottengo score da HMM date le osservazioni
 	cout << "logLikelihood ottenuta: " << phmm->LogLikelihood(ivf_init, ivf_final, &A) << endl;
 
-	//Salvo HMM
-	phmm->SaveToFile("primo");
+	//Salvo HMM: ottengo un char significativo essendo il salvataggio in C
+	string prefix = "hmm_";
+	nome_file.erase(0, 8);
+	nome_file.erase(11, nome_file.size());
+	prefix.append(nome_file);
+	char * cstr = new char [prefix.length()+1];
+	strcpy_s(cstr, prefix.length()+1, prefix.c_str());
+
+	//Salvo con un nome collegato all'azione considerata
+	phmm->SaveToFile(cstr);
+	
 
 	in.close();
 	system("pause");
