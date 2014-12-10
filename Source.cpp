@@ -28,7 +28,7 @@ struct trip{
 //Numero persone da caricare train (MAX 12)
 #define num_s_train 1
 //Numero azioni da caricare train (MAX 3)
-#define num_a_train 2
+#define num_a_train 1
 //Numero istanze da caricare train (MAX 3)
 #define num_e_train 1
 
@@ -201,13 +201,17 @@ int main(){
 	//Inizializzo HMM
 	cout << "Inizializzo il feature vector..." << endl;
 	int num_iter;
-	phmm->RandomInit();
+	//phmm->RandomInit(); 
+	phmm->Init_Equi(ivf_init, ivf_final);
 
 	//Addestramento HMM
-	cout << "Training..." << endl;
+	cout << "Training..." << endl << endl;
 	int pniter;
 	double plogprobinit, plogprobfinal;
 	phmm->BaumWelch(ivf_init, ivf_final, &pniter, &plogprobinit, &plogprobfinal);
+	cout << "Valore iniziale: " << plogprobinit << endl;
+	cout << "Valore finale: " << plogprobfinal << endl;
+	
 
 	//Ottengo valori HMM addestrato
 	Mat_<double> A; //Matrice transizioni
@@ -216,11 +220,10 @@ int main(){
 	//--------------------------------------------TESTING HMM---------------------------------------
 	
 	//LogLikelihood: ottengo score da HMM date le osservazioni
-	
 	cout << "logLikelihood ottenuta: " << phmm->LogLikelihood(ivf_init, ivf_final, &A) << endl;
 
 	//Salvo HMM
-	phmm->SaveToFile("primo.txt");
+	phmm->SaveToFile("primo");
 
 	in.close();
 	system("pause");
