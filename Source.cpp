@@ -19,7 +19,7 @@ struct trip{
 };
 
 //Numero azione
-#define num_a 3
+#define num_a 2
 //Numero persona
 #define num_s 1
 //Numero istanza
@@ -45,7 +45,7 @@ trip getxyz(vector<vector<trip>> vframe, int frame, int part ){
 	return t;
 }
 
-//Funzione che dato file, estrae (x,y,z) e le inserisce tutte in un vettore dell'azione
+//Funzione che dato file, estrae le terne (x,y,z) e le inserisce tutte in un vettore dell'azione
 void getdata(ifstream &in, vector<trip>& v, vector<vector<trip>>& vaction ){
 	string line;
 
@@ -73,46 +73,48 @@ void getdata(ifstream &in, vector<trip>& v, vector<vector<trip>>& vaction ){
 void getfeatures(vector<vector<trip>> vaction, vector<vector<double>>& vfeatures){
 	vector<double> feat;
 	for(int i=0; i<vaction.size(); ++i){ //per ogni frame calcolo la feature
-			double dist;
+		double dist;
 
-			//Distanza euclidea mani
-			dist = sqrt(pow((getxyz(vaction, i, right_hand).x-getxyz(vaction, i, left_hand).x), 2) +
-				pow((getxyz(vaction, i, right_hand).y-getxyz(vaction, i, left_hand).y), 2) +
-				pow((getxyz(vaction, i, right_hand).z-getxyz(vaction, i, left_hand).z), 2));
-			//Accumulo la feature
-			feat.push_back(dist);
+		//Distanza euclidea mani
+		dist = sqrt(pow((getxyz(vaction, i, right_hand).x-getxyz(vaction, i, left_hand).x), 2) +
+			pow((getxyz(vaction, i, right_hand).y-getxyz(vaction, i, left_hand).y), 2) +
+			pow((getxyz(vaction, i, right_hand).z-getxyz(vaction, i, left_hand).z), 2));
+		//Accumulo la feature
+		feat.push_back(dist);
 
-			//Distanza mano destra - testa
-			dist = sqrt(pow((getxyz(vaction, i, right_hand).x-getxyz(vaction, i, head).x), 2) +
-				pow((getxyz(vaction, i, right_hand).y-getxyz(vaction, i, head).y), 2) +
-				pow((getxyz(vaction, i, right_hand).z-getxyz(vaction, i, head).z), 2));
-			//Accumulo la feature
-			feat.push_back(dist); 
+		//Distanza mano destra - testa
+		dist = sqrt(pow((getxyz(vaction, i, right_hand).x-getxyz(vaction, i, head).x), 2) +
+			pow((getxyz(vaction, i, right_hand).y-getxyz(vaction, i, head).y), 2) +
+			pow((getxyz(vaction, i, right_hand).z-getxyz(vaction, i, head).z), 2));
+		//Accumulo la feature
+		feat.push_back(dist); 
 
-			//Distanza mano sinistra - testa
-			dist = sqrt(pow((getxyz(vaction, i, left_hand).x-getxyz(vaction, i, head).x), 2) +
-				pow((getxyz(vaction, i, left_hand).y-getxyz(vaction, i, head).y), 2) +
-				pow((getxyz(vaction, i, left_hand).z-getxyz(vaction, i, head).z), 2));
-			//Accumulo la feature
-			feat.push_back(dist); 
+		//Distanza mano sinistra - testa
+		dist = sqrt(pow((getxyz(vaction, i, left_hand).x-getxyz(vaction, i, head).x), 2) +
+			pow((getxyz(vaction, i, left_hand).y-getxyz(vaction, i, head).y), 2) +
+			pow((getxyz(vaction, i, left_hand).z-getxyz(vaction, i, head).z), 2));
+		//Accumulo la feature
+		feat.push_back(dist); 
 
-			//Memorizzo tutte le features calcolate
-			vfeatures.push_back(feat);
+		//Memorizzo tutte le features calcolate
+		vfeatures.push_back(feat);
 
-			//Pulisco il vettore features per accumularne di nuove
-			feat.clear();
-		}
+		//Pulisco il vettore features per accumularne di nuove
+		feat.clear();
+	}
 }
 
 int main(int argc, char *argv[]){
-	
-	if(strcmp(argv[1], "train")==0){
+	bool singolo = true;
+	bool train = false;
+	string nome_file;
+	ifstream in;
+	vector<trip> v;
+	vector<vector<trip>> vaction;
 
-		bool singolo = true;
-		string nome_file;
-		ifstream in;
-		vector<trip> v;
-		vector<vector<trip>> vaction;
+	cout << "ciao";
+
+	if(train){	
 
 		//--------------------------------------Acquisizione del dataset-------------------------------------
 		if(!singolo){
@@ -223,14 +225,14 @@ int main(int argc, char *argv[]){
 
 		//Ottengo valori HMM addestrato
 		Mat_<double> A; //Matrice transizioni
-		A = phmm->m_A;
+		A = phmm->m_A; 
 
 		//--------------------------------------------TESTING HMM---------------------------------------
 
 		//LogLikelihood: ottengo score da HMM date le osservazioni
 		std::cout << "logLikelihood ottenuta: " << phmm->LogLikelihood(ivf_init, ivf_final, &A) << endl;
 
-		//Salvo HMM: ottengo un char significativo essendo il salvataggio in C
+		//Salvo HMM: ottengo un char significativo essendo il salvataggio in C (serve un char*)
 		string prefix = "hmm_";
 		stringstream suffix;
 		suffix << "_" << num_stati << "_" << num_gaus;
@@ -250,7 +252,95 @@ int main(int argc, char *argv[]){
 
 	}
 	else{
-		std::cout << "testing" << endl;
+		std::cout << "Testing..." << endl;
+
+		ifstream hmm_file("hmm.txt");
+		ifstream test_file("test.txt");
+		ofstream out_file("results.txt");
+
+		vector<string> nomi_hmm;
+		vector<string> nomi_test;
+		string nome;
+
+		//Ottengo nomi HMM da usare
+		while(getline(hmm_file, nome))
+			nomi_hmm.push_back(nome);
+
+		std::cout << "Ci sono " << nomi_hmm.size() << " HMM da valutare" << endl;
+
+		//Ottengo test dal dataset
+		while(getline(test_file, nome))
+			nomi_test.push_back(nome);
+
+		std::cout << "Ci sono " << nomi_test.size() << " azioni per il testing" << endl << endl;
+
+		for(int i=0; i<nomi_hmm.size(); ++i){
+
+			//Ricavo numero stati e gaussiane (salvate in altro modo?): conversione char->int
+			int num_stati, num_gaus;
+			num_stati = (int)(nomi_hmm[i].at(16))-'0';
+			num_gaus = (int)(nomi_hmm[i].at(18))-'0';
+
+			//Carico l'HMM
+			CHMM_GMM *hmm = new CHMM_GMM(num_stati, 3, num_gaus); 
+			//Creo char* per aprire il file
+			char * nome_hmm = new char [nomi_hmm[i].length()+1];
+			strcpy_s(nome_hmm, nomi_hmm[i].length()+1, nomi_hmm[i].c_str());
+			std::cout << "Carico: " << nomi_hmm[i] << endl;
+			hmm->LoadFromFile(nome_hmm); 
+			//Salvo nel file
+			out_file << nomi_hmm[i] << endl;
+
+			//Ottengo matrice delle transizioni
+			Mat_<double> A;
+			A = hmm->m_A; 
+
+			for(int k=0; k<nomi_test.size(); ++k){
+
+				//Apro file con l'azione
+				string prefix = "dataset/";
+				prefix.append(nomi_test[k]);
+				std::cout << "Valuto: " << prefix << endl;
+				ifstream hmm_in(prefix);
+				if(!hmm_in.is_open())
+					std::cout << "Errore apertura file!" << endl;
+
+
+				//Ottengo le terne (x, y, z)
+				std::cout << "Leggo l'azione...";
+				getdata(hmm_in, v, vaction);
+				std::cout << "fatto" << endl;
+				std::cout << "Sono stati memorizzati " << vaction.size() << " frame" << endl;
+
+				//Ottengo le features
+				cout << "Calcolo le features...";
+				vector<vector<double>> vfeatures;
+				getfeatures(vaction, vfeatures);
+				cout << "fatto" << endl;
+				std::cout << "Il feature vector ha " << vfeatures.size() << " vettori di features, con " << vfeatures[0].size() << " features" << endl;
+
+				//Valuto l'HMM
+				typedef vector<vector<double>>::iterator iter_vf;
+				const iter_vf ivf_init = vfeatures.begin();
+				const iter_vf ivf_final = vfeatures.end();
+				double loglk;
+
+				loglk = hmm->LogLikelihood(ivf_init, ivf_final, &A);
+				cout << "\tlogLikelihood ottenuta: " << loglk << endl << endl;
+
+				//Salvo il risultato
+				out_file << nomi_test[k] << "\t" << loglk << endl;
+
+				//Pulisco i vettori utilizzati e non dichiarati ogni ciclo
+				v.clear();
+				vaction.clear();
+			}
+			out_file << endl << endl;
+		}
+		//Chiudo i file
+		test_file.close();
+		hmm_file.close();
+		out_file.close();
 
 		std::system("pause");
 	}
