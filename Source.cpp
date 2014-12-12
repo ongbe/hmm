@@ -19,11 +19,11 @@ struct trip{
 };
 
 //Numero azione
-#define num_a 2
+#define num_a 3
 //Numero persona
 #define num_s 1
 //Numero istanza
-#define num_e 1
+#define num_e 3
 
 //Numero azioni da caricare train (MAX 3)
 #define num_a_train 1
@@ -105,8 +105,8 @@ void getfeatures(vector<vector<trip>> vaction, vector<vector<double>>& vfeatures
 }
 
 int main(int argc, char *argv[]){
-	bool singolo = true;
-	bool train = false;
+	bool singolo = true; //funziona solo il singolo caricamento per ora
+	bool train = false; //true: train, false: test
 	string nome_file;
 	ifstream in;
 	vector<trip> v;
@@ -186,7 +186,7 @@ int main(int argc, char *argv[]){
 			std::cout << "Sono stati memorizzati " << vaction.size() << " frame" << endl;
 		}
 
-		//--------------------------------Creazione del Feature Vector-------------------------------
+		//Creazione del Feature Vector
 		vector<vector<double>> vfeatures;
 
 		std::cout << "Calcolo le features..." << endl;
@@ -212,7 +212,11 @@ int main(int argc, char *argv[]){
 		std::cout << "Inizializzo il feature vector..." << endl;
 		int num_iter;
 		//phmm->RandomInit(); 
+		Mat_<double> A_dopo_init;
+		Mat_<double> si_prima_train;
 		phmm->Init_Equi(ivf_init, ivf_final);
+		A_dopo_init =  (phmm->m_A).clone(); 	
+		si_prima_train = (phmm->m_pi).clone();
 
 		//Addestramento HMM
 		std::cout << "Training..." << endl << endl;
@@ -222,15 +226,15 @@ int main(int argc, char *argv[]){
 		std::cout << "Valore iniziale: " << plogprobinit << endl;
 		std::cout << "Valore finale: " << plogprobfinal << endl;
 
-
-		//Ottengo valori HMM addestrato
 		Mat_<double> A; //Matrice transizioni
-		A = phmm->m_A; 
+		A = phmm->m_A;
+		
 
-		//--------------------------------------------TESTING HMM---------------------------------------
+		//--------------------------------------------TESTING TRAIN HMM-----------------------------------
 
 		//LogLikelihood: ottengo score da HMM date le osservazioni
-		std::cout << "logLikelihood ottenuta: " << phmm->LogLikelihood(ivf_init, ivf_final, &A) << endl;
+		double loglk = phmm->LogLikelihood(ivf_init, ivf_final, &A);
+		std::cout << "logLikelihood ottenuta: " << loglk << endl;
 
 		//Salvo HMM: ottengo un char significativo essendo il salvataggio in C (serve un char*)
 		string prefix = "hmm_";
@@ -246,11 +250,30 @@ int main(int argc, char *argv[]){
 		//Salvo con un nome collegato all'azione considerata
 		phmm->SaveToFile(cstr);
 
+		//Salvo log valori HMM addestrato
+		string nome_log = "log_train_";
+		nome_log.append(prefix);
+		nome_log.append(".txt");
+		ofstream log(nome_log); 
 
+		log << "Numero stati: " << phmm->m_iN << "\n" << "Numero gaussiane: " << phmm->m_iK << "\n" << "Numero features: " << phmm->m_iM << endl;
+		log << "\nMatrice transizioni [dopo l'inizializzazione]:\n" << A_dopo_init << endl;
+		log << "\nMatrice transizioni [dopo train]:\n" << phmm->m_A << endl;
+		log << "\nStato iniziale [prima del train]:\n" << si_prima_train << endl;
+		log << "\nStato finale:\n " << phmm->m_final << endl; 
+		log << "\nNumero iterazioni train: " << pniter << endl;
+		log << "Probabilità iniziale: " << plogprobinit << endl;
+		log << "Probabilità finale: " << plogprobfinal << endl;
+		log << "LogLikelihood ottenuta [test su stesse osservazioni del training]: " << loglk << endl;
+		
+
+		//Chiudo i file aperti
 		in.close();
+		log.close();
 		std::system("pause");
 
 	}
+	//------------------------------------------------TESTING------------------------------------------
 	else{
 		std::cout << "Testing..." << endl;
 

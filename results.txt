@@ -5,12 +5,82 @@ a01_s01_e03_skeleton3D.txt	100.675
 a01_s02_e01_skeleton3D.txt	-868.089
 a01_s02_e02_skeleton3D.txt	-2225.04
 a01_s02_e03_skeleton3D.txt	-5416.43
+a01_s03_e01_skeleton3D.txt	-121.551
+a02_s01_e01_skeleton3D.txt	99.0921
 a03_s01_e01_skeleton3D.txt	83.748
 a03_s01_e02_skeleton3D.txt	75.8139
 a03_s01_e03_skeleton3D.txt	74.5144
 a03_s02_e01_skeleton3D.txt	-200.567
 a03_s02_e02_skeleton3D.txt	-454.181
 a03_s02_e03_skeleton3D.txt	-256.007
+
+
+hmm_a01_s02_e01_8_1
+a01_s01_e01_skeleton3D.txt	-30.5347
+a01_s01_e02_skeleton3D.txt	-25.5649
+a01_s01_e03_skeleton3D.txt	-26.5184
+a01_s02_e01_skeleton3D.txt	61.7685
+a01_s02_e02_skeleton3D.txt	-79.1774
+a01_s02_e03_skeleton3D.txt	-306.277
+a01_s03_e01_skeleton3D.txt	-187.936
+a02_s01_e01_skeleton3D.txt	-4.45025
+a03_s01_e01_skeleton3D.txt	1.16942
+a03_s01_e02_skeleton3D.txt	-6.2292
+a03_s01_e03_skeleton3D.txt	-6.28547
+a03_s02_e01_skeleton3D.txt	27.3418
+a03_s02_e02_skeleton3D.txt	45.2177
+a03_s02_e03_skeleton3D.txt	39.6226
+
+
+hmm_a01_s02_e02_8_1
+a01_s01_e01_skeleton3D.txt	-1099.13
+a01_s01_e02_skeleton3D.txt	-1090.49
+a01_s01_e03_skeleton3D.txt	-1056.74
+a01_s02_e01_skeleton3D.txt	-1062.39
+a01_s02_e02_skeleton3D.txt	76.0919
+a01_s02_e03_skeleton3D.txt	-895.488
+a01_s03_e01_skeleton3D.txt	-1203.03
+a02_s01_e01_skeleton3D.txt	-514.515
+a03_s01_e01_skeleton3D.txt	-858.51
+a03_s01_e02_skeleton3D.txt	-944.534
+a03_s01_e03_skeleton3D.txt	-805.326
+a03_s02_e01_skeleton3D.txt	-920.376
+a03_s02_e02_skeleton3D.txt	-971.652
+a03_s02_e03_skeleton3D.txt	-925.935
+
+
+hmm_a01_s02_e03_8_1
+a01_s01_e01_skeleton3D.txt	-95.2869
+a01_s01_e02_skeleton3D.txt	-83.7315
+a01_s01_e03_skeleton3D.txt	-80.2372
+a01_s02_e01_skeleton3D.txt	-32.3849
+a01_s02_e02_skeleton3D.txt	-58.228
+a01_s02_e03_skeleton3D.txt	21.903
+a01_s03_e01_skeleton3D.txt	-227.902
+a02_s01_e01_skeleton3D.txt	-46.1729
+a03_s01_e01_skeleton3D.txt	-45.2521
+a03_s01_e02_skeleton3D.txt	-44.4505
+a03_s01_e03_skeleton3D.txt	-41.2687
+a03_s02_e01_skeleton3D.txt	-13.7165
+a03_s02_e02_skeleton3D.txt	-3.77527
+a03_s02_e03_skeleton3D.txt	-19.9501
+
+
+hmm_a01_s03_e01_8_1
+a01_s01_e01_skeleton3D.txt	-98.5137
+a01_s01_e02_skeleton3D.txt	-60.1314
+a01_s01_e03_skeleton3D.txt	-68.7839
+a01_s02_e01_skeleton3D.txt	-1939.91
+a01_s02_e02_skeleton3D.txt	-3346.41
+a01_s02_e03_skeleton3D.txt	-7397.7
+a01_s03_e01_skeleton3D.txt	78.4303
+a02_s01_e01_skeleton3D.txt	-16.5734
+a03_s01_e01_skeleton3D.txt	-177.753
+a03_s01_e02_skeleton3D.txt	-128.612
+a03_s01_e03_skeleton3D.txt	-85.4245
+a03_s02_e01_skeleton3D.txt	-656.601
+a03_s02_e02_skeleton3D.txt	-1173.97
+a03_s02_e03_skeleton3D.txt	-897.727
 
 
 hmm_a01_s01_e01_8_3
@@ -20,6 +90,8 @@ a01_s01_e03_skeleton3D.txt	187.94
 a01_s02_e01_skeleton3D.txt	-877.924
 a01_s02_e02_skeleton3D.txt	-2260.19
 a01_s02_e03_skeleton3D.txt	-5535.16
+a01_s03_e01_skeleton3D.txt	-98.0177
+a02_s01_e01_skeleton3D.txt	107.821
 a03_s01_e01_skeleton3D.txt	134.057
 a03_s01_e02_skeleton3D.txt	93.6976
 a03_s01_e03_skeleton3D.txt	56.0977
@@ -35,6 +107,8 @@ a01_s01_e03_skeleton3D.txt	64.3779
 a01_s02_e01_skeleton3D.txt	-992.28
 a01_s02_e02_skeleton3D.txt	-2351.07
 a01_s02_e03_skeleton3D.txt	-5645.67
+a01_s03_e01_skeleton3D.txt	-154.831
+a02_s01_e01_skeleton3D.txt	116.039
 a03_s01_e01_skeleton3D.txt	31.8166
 a03_s01_e02_skeleton3D.txt	29.4034
 a03_s01_e03_skeleton3D.txt	45.9143
@@ -50,11 +124,30 @@ a01_s01_e03_skeleton3D.txt	80.6485
 a01_s02_e01_skeleton3D.txt	-664.336
 a01_s02_e02_skeleton3D.txt	-1985.63
 a01_s02_e03_skeleton3D.txt	-4943.33
+a01_s03_e01_skeleton3D.txt	-262.558
+a02_s01_e01_skeleton3D.txt	75.8542
 a03_s01_e01_skeleton3D.txt	97.7985
 a03_s01_e02_skeleton3D.txt	82.2165
 a03_s01_e03_skeleton3D.txt	73.1526
 a03_s02_e01_skeleton3D.txt	-119.732
 a03_s02_e02_skeleton3D.txt	-312.706
 a03_s02_e03_skeleton3D.txt	-147.051
+
+
+hmm_a03_s01_e03_8_1
+a01_s01_e01_skeleton3D.txt	121.034
+a01_s01_e02_skeleton3D.txt	98.7789
+a01_s01_e03_skeleton3D.txt	96.0345
+a01_s02_e01_skeleton3D.txt	-779.528
+a01_s02_e02_skeleton3D.txt	-2127.68
+a01_s02_e03_skeleton3D.txt	-5214.84
+a01_s03_e01_skeleton3D.txt	-186.739
+a02_s01_e01_skeleton3D.txt	95.27
+a03_s01_e01_skeleton3D.txt	89.3732
+a03_s01_e02_skeleton3D.txt	81.8116
+a03_s01_e03_skeleton3D.txt	79.3556
+a03_s02_e01_skeleton3D.txt	-166.289
+a03_s02_e02_skeleton3D.txt	-397.423
+a03_s02_e03_skeleton3D.txt	-216.963
 
 
