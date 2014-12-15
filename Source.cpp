@@ -35,6 +35,8 @@ struct trip{
 #define right_hand 12
 #define left_hand 13
 #define head 20
+#define right_foot 18
+#define left_foot 19
 
 trip getxyz(vector<vector<trip>> vframe, int frame, int part ){
 	trip t;
@@ -96,6 +98,13 @@ void getfeatures(vector<vector<trip>> vaction, vector<vector<double>>& vfeatures
 		//Accumulo la feature
 		feat.push_back(dist); 
 
+		//Distanza euclidea piedi
+		dist = sqrt(pow((getxyz(vaction, i, right_foot).x-getxyz(vaction, i, left_foot).x), 2) +
+			pow((getxyz(vaction, i, right_foot).y-getxyz(vaction, i, left_foot).y), 2) +
+			pow((getxyz(vaction, i, right_foot).z-getxyz(vaction, i, left_foot).z), 2));
+		//Accumulo la feature
+		feat.push_back(dist);
+
 		//Memorizzo tutte le features calcolate
 		vfeatures.push_back(feat);
 
@@ -111,8 +120,6 @@ int main(int argc, char *argv[]){
 	ifstream in;
 	vector<trip> v;
 	vector<vector<trip>> vaction;
-
-	cout << "ciao";
 
 	if(train){	
 
@@ -239,7 +246,7 @@ int main(int argc, char *argv[]){
 		//Salvo HMM: ottengo un char significativo essendo il salvataggio in C (serve un char*)
 		string prefix = "hmm_";
 		stringstream suffix;
-		suffix << "_" << num_stati << "_" << num_gaus;
+		suffix << "_" << num_stati << "_" << num_gaus << "_" << vfeatures[0].size();
 		nome_file.erase(0, 8);
 		nome_file.erase(11, nome_file.size());
 		prefix.append(nome_file);
