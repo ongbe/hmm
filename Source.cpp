@@ -310,7 +310,11 @@ int main(int argc, char *argv[]){
 			char * nome_hmm = new char [nomi_hmm[i].length()+1];
 			strcpy_s(nome_hmm, nomi_hmm[i].length()+1, nomi_hmm[i].c_str());
 			std::cout << "Carico: " << nomi_hmm[i] << endl;
-			hmm->LoadFromFile(nome_hmm); 
+			if(!(hmm->LoadFromFile(nome_hmm))){
+				cout << "Errore caricamento HMM: " << nome_hmm << endl;
+				out_file << "Errore caricamento HMM: " << nome_hmm << endl;
+				continue;
+			}
 			//Salvo nel file
 			out_file << nomi_hmm[i] << endl;
 
@@ -325,8 +329,11 @@ int main(int argc, char *argv[]){
 				prefix.append(nomi_test[k]);
 				std::cout << "Valuto: " << prefix << endl;
 				ifstream hmm_in(prefix);
-				if(!hmm_in.is_open())
-					std::cout << "Errore apertura file!" << endl;
+				if(!hmm_in.is_open()){
+					std::cout << "Errore apertura file azione!" << endl;
+					out_file << "Errore apertura file azione" << endl;
+					continue;
+				}
 
 
 				//Ottengo le terne (x, y, z)
@@ -351,7 +358,7 @@ int main(int argc, char *argv[]){
 				loglk = hmm->LogLikelihood(ivf_init, ivf_final, &A);
 				cout << "\tlogLikelihood ottenuta: " << loglk << endl << endl;
 
-				//Salvo il risultato
+				//Salvo il risultato nel file di log
 				out_file << nomi_test[k] << "\t" << loglk << endl;
 
 				//Pulisco i vettori utilizzati e non dichiarati ogni ciclo
