@@ -5,6 +5,7 @@
 #include <iomanip>
 #include <vector>
 #include <iterator>
+#include <float.h>
 
 #include "gmmstd_gmm_tiny.h"
 #include "gmmstd_hmm_GMM.h"
@@ -19,11 +20,11 @@ struct trip{
 };
 
 //Numero azione
-#define num_a 3
+#define num_a 1
 //Numero persona
 #define num_s 1
 //Numero istanza
-#define num_e 3
+#define num_e 1
 
 //Numero azioni da caricare train (MAX 3)
 #define num_a_train 1
@@ -123,8 +124,10 @@ int main(int argc, char *argv[]){
 
 	if(train){	
 
-		//--------------------------------------Acquisizione del dataset-------------------------------------
+		//--------------------------------------Acquisizione dal dataset-------------------------------------
 		if(!singolo){
+
+			//Da completare, non funzionante
 			for(int i=0; i<num_a_train; ++i){
 
 				stringstream ssi;
@@ -166,7 +169,8 @@ int main(int argc, char *argv[]){
 				ssi.clear();
 			}
 		}
-		else{// Versione per caricare un singolo file del dataset
+		// Versione per caricare un singolo file del dataset (funzionante)
+		else{
 			stringstream ssi;
 			ssi << setfill('0') << setw(2) << num_a;
 			stringstream ssk;
@@ -197,6 +201,7 @@ int main(int argc, char *argv[]){
 		vector<vector<double>> vfeatures;
 
 		std::cout << "Calcolo le features..." << endl;
+
 		getfeatures(vaction, vfeatures);
 
 		std::cout << "Il feature vector ha " << vfeatures.size() << " vettori di features, con " << vfeatures[0].size() << " features" << endl;
@@ -213,14 +218,14 @@ int main(int argc, char *argv[]){
 
 		//Nuovo HMM
 		std::cout << "Costruisco un nuovo HMM..." << endl;
-		CHMM_GMM *phmm = new CHMM_GMM(num_stati, dim_fv, num_gaus);
+		CHMM_GMM *phmm = new CHMM_GMM(num_stati, dim_fv, num_gaus); 
 
 		//Inizializzo HMM
 		std::cout << "Inizializzo il feature vector..." << endl;
 		int num_iter;
 		//phmm->RandomInit(); 
-		Mat_<double> A_dopo_init;
-		Mat_<double> si_prima_train;
+		Mat_<double> A_dopo_init;//per debug fase di train
+		Mat_<double> si_prima_train;//per debug fase di train
 		phmm->Init_Equi(ivf_init, ivf_final);
 		A_dopo_init =  (phmm->m_A).clone(); 	
 		si_prima_train = (phmm->m_pi).clone();
@@ -284,77 +289,83 @@ int main(int argc, char *argv[]){
 	else{
 		std::cout << "Testing..." << endl;
 
+		//File da cui carica gli HMM, le azioni da classificare e in cui salva i risultati ottenuti
 		ifstream hmm_file("hmm.txt");
 		ifstream test_file("test.txt");
 		ofstream out_file("results.txt");
 
-		vector<string> nomi_hmm;
-		vector<string> nomi_test;
-		string nome;
-
 		//Ottengo nomi HMM da usare
+		vector<string> nomi_hmm;
+		string nome;
 		while(getline(hmm_file, nome))
 			nomi_hmm.push_back(nome);
 
 		std::cout << "Ci sono " << nomi_hmm.size() << " HMM da valutare" << endl;
 
 		//Ottengo test dal dataset
+		vector<string> nomi_test;
 		while(getline(test_file, nome))
 			nomi_test.push_back(nome);
 
 		std::cout << "Ci sono " << nomi_test.size() << " azioni per il testing" << endl << endl;
 
-		for(int i=0; i<nomi_hmm.size(); ++i){
 
-			//Ricavo numero stati e gaussiane (salvate in altro modo?): conversione char->int
-			int num_stati, num_gaus;
-			num_stati = (int)(nomi_hmm[i].at(16))-'0';
-			num_gaus = (int)(nomi_hmm[i].at(18))-'0';
+		//Per ogni azione testo la batteria di HMM che ho caricato in precedenza
+		for(int i=0; i<nomi_test.size(); ++i){
 
-			//Carico l'HMM
-			CHMM_GMM *hmm = new CHMM_GMM(num_stati, 3, num_gaus); 
-			//Creo char* per aprire il file
-			char * nome_hmm = new char [nomi_hmm[i].length()+1];
-			strcpy_s(nome_hmm, nomi_hmm[i].length()+1, nomi_hmm[i].c_str());
-			std::cout << "Carico: " << nomi_hmm[i] << endl;
-			if(!(hmm->LoadFromFile(nome_hmm))){
-				cout << "Errore caricamento HMM: " << nome_hmm << endl;
-				out_file << "Errore caricamento HMM: " << nome_hmm << endl;
+			double max = -DBL_MAX;
+			string classe;
+
+			//Apro file con l'azione
+			string prefix = "dataset/";
+			prefix.append(nomi_test[i]);
+			std::cout << "Valuto: " << prefix << endl;
+			ifstream hmm_in(prefix);
+			if(!hmm_in.is_open()){
+				std::cout << "Errore apertura file azione!" << endl;
+				out_file << "Errore apertura file azione" << endl;
 				continue;
 			}
-			//Salvo nel file
-			out_file << nomi_hmm[i] << endl;
 
-			//Ottengo matrice delle transizioni
-			Mat_<double> A;
-			A = hmm->m_A; 
 
-			for(int k=0; k<nomi_test.size(); ++k){
+			//Ottengo le terne (x, y, z)
+			std::cout << "Leggo l'azione...";
+			getdata(hmm_in, v, vaction);
+			std::cout << "fatto" << endl;
+			std::cout << "Sono stati memorizzati " << vaction.size() << " frame" << endl;
 
-				//Apro file con l'azione
-				string prefix = "dataset/";
-				prefix.append(nomi_test[k]);
-				std::cout << "Valuto: " << prefix << endl;
-				ifstream hmm_in(prefix);
-				if(!hmm_in.is_open()){
-					std::cout << "Errore apertura file azione!" << endl;
-					out_file << "Errore apertura file azione" << endl;
+			//Ottengo le features
+			cout << "Calcolo le features...";
+			vector<vector<double>> vfeatures;
+			getfeatures(vaction, vfeatures);
+			cout << "fatto" << endl;
+			std::cout << "Il feature vector ha " << vfeatures.size() << " vettori di features, con " << vfeatures[0].size() << " features" << endl;
+
+			//Salvo nel file l'azione
+			out_file << nomi_test[i] << endl;
+
+			for(int k=0; k<nomi_hmm.size(); ++k){
+
+				//Ricavo numero stati e gaussiane 
+				int num_stati, num_gaus;
+				num_stati = (int)(nomi_hmm[k].at(16))-'0';
+				num_gaus = (int)(nomi_hmm[k].at(18))-'0';
+
+				//Carico l'HMM
+				CHMM_GMM *hmm = new CHMM_GMM(num_stati, 3, num_gaus); 
+				
+				char * nome_hmm = new char [nomi_hmm[k].length()+1];
+				strcpy_s(nome_hmm, nomi_hmm[k].length()+1, nomi_hmm[k].c_str());
+				std::cout << "Carico: " << nomi_hmm[k] << endl;
+				if(!(hmm->LoadFromFile(nome_hmm))){
+					cout << "Errore caricamento HMM: " << nome_hmm << endl;
+					out_file << "Errore caricamento HMM: " << nome_hmm << endl;
 					continue;
 				}
 
-
-				//Ottengo le terne (x, y, z)
-				std::cout << "Leggo l'azione...";
-				getdata(hmm_in, v, vaction);
-				std::cout << "fatto" << endl;
-				std::cout << "Sono stati memorizzati " << vaction.size() << " frame" << endl;
-
-				//Ottengo le features
-				cout << "Calcolo le features...";
-				vector<vector<double>> vfeatures;
-				getfeatures(vaction, vfeatures);
-				cout << "fatto" << endl;
-				std::cout << "Il feature vector ha " << vfeatures.size() << " vettori di features, con " << vfeatures[0].size() << " features" << endl;
+				//Ottengo matrice delle transizioni
+				Mat_<double> A;
+				A = hmm->m_A; 
 
 				//Valuto l'HMM
 				typedef vector<vector<double>>::iterator iter_vf;
@@ -365,15 +376,30 @@ int main(int argc, char *argv[]){
 				loglk = hmm->LogLikelihood(ivf_init, ivf_final, &A);
 				cout << "\tlogLikelihood ottenuta: " << loglk << endl << endl;
 
+				//Classificazione: prendo il valore maggiore di loglikelihood
+				if(loglk>max){
+					max = loglk;
+					classe = nomi_hmm[k];
+				}
+
 				//Salvo il risultato nel file di log
-				out_file << nomi_test[k] << "\t" << loglk << endl;
+				out_file << nomi_hmm[k] << "\t" << loglk << endl;
 
 				//Pulisco i vettori utilizzati e non dichiarati ogni ciclo
 				v.clear();
 				vaction.clear();
 			}
+			
+			//Ricavo il nome della classe dal nome del file
+			classe = classe.substr(classe.find_first_of("a", 0)+1, 2);
+
+			//Stampo la classificazione nel file
+			out_file << "\tClassificazione: " << classe << endl;
+
+			classe.clear();
 			out_file << endl << endl;
 		}
+
 		//Chiudo i file
 		test_file.close();
 		hmm_file.close();
