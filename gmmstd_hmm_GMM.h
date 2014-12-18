@@ -456,7 +456,12 @@ protected:
 				for (m=0; m<m_iM; m++)
 				{
 					// setto valore medio delle gaussiane
-					m_B[n].MeanValue(k,m) = means[m]+ (2*(k-(m_iK/2))*Sqrtvariance[m]);
+					//m_B[n].MeanValue(k,m) = means[m]+ (2*(k-(m_iK/2))*Sqrtvariance[m]);
+					double dL1, dL2;
+					dL1 =  means[m]-Sqrtvariance[m] + k * (2.0* Sqrtvariance[m] / m_iK);
+					dL2 = dL1 + (2.0* Sqrtvariance[m] / m_iK);
+
+					m_B[n].MeanValue(k,m) = random_Uniform( dL1,dL2);
 					// setto varianza delle gaussiane
 					m_B[n].CoVarianceValue(k,m,m)=(Sqrtvariance[m])*(Sqrtvariance[m]);
 				}
@@ -1354,7 +1359,7 @@ void CHMM_GMM::BaumWelch (BidirectionalIterator FirstObservation, BidirectionalI
 		
 			// rinormalizzo A affinchè sia stocastica, se qualcosa è andato storto
 			//assert(fabs(dSum-1)<.001);
-			if (fabs(dSum-1)>.001)
+			if (fabs(dSum-1)<.001)
 				for (j = 0; j < m_iN; j++) {
 					m_A(i,j) /= dSum;
 				}
