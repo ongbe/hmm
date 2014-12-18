@@ -45,8 +45,11 @@ CHMM_GMM::CHMM_GMM(unsigned int N, unsigned  int M, unsigned int K)
 			unsigned int i;
 			for (i=0; i<m_iN; i++)
 			{
+				m_B[i]= CGMM_tiny(m_iM, m_iK);
+				/*
 				m_B[i].ReSize(m_iM);  // dimensione feature
 				m_B[i].SetGaussiansNumber(m_iK);  // numero di gaussiane fisso
+				*/
 			}
 
 			// todo: impostare valori iniziali!!!
